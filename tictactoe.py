@@ -36,7 +36,7 @@ class Board:
     @property
     def is_o_turn(self):
         x_ahead_one = (self.num_x == self.num_o + 1)
-        return (self.empty or x_ahead_one) and not self.full
+        return x_ahead_one and not self.full
 
     @property
     def next_player(self):
