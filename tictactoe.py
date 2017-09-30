@@ -167,8 +167,8 @@ def hello():
     except ValueError:
         return ("Invalid board.", 400, {'Content-type': 'text/plain'})
 
-    #if not board.is_o_turn:
-    #    return ("It isn't O's turn.\n\n{}".format(board), 400, {'Content-type': 'text/plain'})
+    if not board.is_o_turn:
+        return ("It isn't O's turn.\n\n{}".format(board), 400, {'Content-type': 'text/plain'})
 
     next_board = board.move()
     out = '''{}
