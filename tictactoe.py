@@ -76,8 +76,8 @@ class Board:
                 return result
 
         # Check diagonals.
-        for d_idx in [(0, 4, 8), (2, 4, 6)]:
-            diag = b[0] + b[4] + b[8]
+        for x,y,z in [(0, 4, 8), (2, 4, 6)]:
+            diag = b[x] + b[y] + b[z]
             result = __check(col)
             if result:
                 return result
