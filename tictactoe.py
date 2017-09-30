@@ -170,11 +170,13 @@ def hello():
         return ("It isn't O's turn.\n\n{}".format(board), 400, {'Content-type': 'text/plain'})
 
     next_board = board.move()
-    out = str(next_board)
     if bool(os.environ.get('TTT_DEBUG', False)):
         import pprint
+        out = str(next_board)
         out += '\n\n---------- DEBUG ----------'
         out += '\n\nInput:\n{}'.format(board)
         out += '\n\nScore: {}'.format(board.score)
         out += '\n\nChildren:\n{}'.format(pprint.pformat(board.children))
+    else:
+        out = next_board.board
     return (out, 200, {'Content-type': 'text/plain'})
