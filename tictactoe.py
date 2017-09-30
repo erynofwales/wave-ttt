@@ -162,7 +162,9 @@ def hello():
     try:
         board = Board(request.args.get('board', None))
     except ValueError:
-        return ("Invalid board.", 400, {'Content-type': 'text/plain'})
+        out = 'Invalid board.'
+        out += "\n\nPass a 'board' parameter to define the board, e.g. x+o++oxo+"
+        return (out, 400, {'Content-type': 'text/plain'})
 
     if not board.is_o_turn:
         return ("It isn't O's turn.\n\n{}".format(board), 400, {'Content-type': 'text/plain'})
