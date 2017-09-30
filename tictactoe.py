@@ -172,9 +172,12 @@ def hello():
     next_board = board.move()
 
     try:
-        debug = bool(int(os.environ.get('TTT_DEBUG', 0)))
+        debug = int(os.environ.get('TTT_DEBUG', 0))
+        debug = int(request.args.get('debug', debug))
+        debug = bool(debug)
     except ValueError:
         debug = False
+
     if debug:
         import pprint
         out = str(next_board)
