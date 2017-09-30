@@ -17,14 +17,119 @@ class Board:
 
         # Process the board into an array.
         self.board = string.lower()
+
+        num_x, num_o = self._tally_pieces()
+        self.num_x = num_x
+        self.num_o = num_o
+
+        self.score = None
+        self._children = None
+
+    @property
+    def empty(self):
+        return self.num_x == 0 and self.num_o == 0
+
+    @property
+    def full(self):
+        return self.num_x + self.num_o == BOARD_SIZE
     
     @property
     def is_o_turn(self):
-        num_x, num_o = self._tally_pieces()
-        empty_board = (num_x == 0 and num_o == 0)
-        full_board = (num_x + num_o == BOARD_SIZE)
-        x_ahead_one = (num_x == num_o + 1)
-        return (empty_board or x_ahead_one) and not full_board
+        x_ahead_one = (self.num_x == self.num_o + 1)
+        return (self.empty or x_ahead_one) and not self.full
+
+    @property
+    def next_player(self):
+        if self.full:
+            return None
+        else:
+            x_ahead_one = (self.num_x == self.num_o + 1)
+            return Board.O if x_ahead_one else Board.X
+
+    @property
+    def winner(self):
+        '''
+        Determines if this board is a winning state, and which player won if so.
+        '''
+        b = self.board
+
+        def __check(s):
+            if s == 'xxx':
+                return Board.X
+            elif s == 'ooo':
+                return Board.O
+            else:
+                return None
+
+        # Check rows.
+        for i in range(0, 9, 3):
+            row = b[i:i+3]
+            result = __check(row)
+            if result:
+                return result
+
+        # Check columns.
+        for i in range(0, 3):
+            col = b[i] + b[i+3] + b[i+6]
+            result = __check(col)
+            if result:
+                return result
+
+        # Check diagonals.
+        for d_idx in [(0, 4, 8), (2, 4, 6)]:
+            diag = b[0] + b[4] + b[8]
+            result = __check(col)
+            if result:
+                return result
+        
+        return None
+
+    @property
+    def children(self):
+        if self._children is None:
+            self._children = list(self.iterate_children())
+        return self._children
+
+    def evaluate(self):
+        '''
+        Minimax algorithm, implemented recursively, to evaluate board state and
+        make a move.
+        '''
+        if self.score:
+            return self.score
+
+        score = None
+        winner = self.winner
+        if winner == Board.O:
+            score = 1
+        elif winner == Board.X:
+            score = -1
+        elif self.full:
+            score = 0
+        else:
+            minmax = max if self.is_o_turn else min
+            score = minmax([c.evaluate() for c in self.children])
+            self._children.sort(key=lambda b: b.score, reverse=self.is_o_turn)
+
+        self.score = score
+        return self.score
+
+    def iterate_children(self):
+        next_player = self.next_player
+        if not next_player:
+            yield None
+        for i in range(BOARD_SIZE):
+            if self.board[i] == ' ':
+                b = self.board[0:i] + next_player + self.board[i+1:len(self.board)]
+                yield Board(b)
+
+    def move(self):
+        for c in self.children:
+            c.evaluate()
+        try:
+            return self.children[0]
+        except IndexError:
+            return None
 
     def _tally_pieces(self):
         num_x = 0
@@ -37,7 +142,11 @@ class Board:
         return num_x, num_o
 
     def __repr__(self):
-        return "<Board:'{}'>".format(self.board)
+        out = "<Board:'{}'".format(self.board)
+        if self.score is not None:
+            out += ', score:{}'.format(self.score)
+        out += '>'
+        return out
 
     def __str__(self):
         out = ''
@@ -58,7 +167,14 @@ def hello():
     except ValueError:
         return ("Invalid board.", 400, {'Content-type': 'text/plain'})
 
-    if not board.is_o_turn:
-        return ("It isn't O's turn.\n\n{}".format(board), 400, {'Content-type': 'text/plain'})
+    #if not board.is_o_turn:
+    #    return ("It isn't O's turn.\n\n{}".format(board), 400, {'Content-type': 'text/plain'})
 
-    return (str(board), 200, {'Content-type': 'text/plain'})
+    next_board = board.move()
+    out = '''{}
+
+Score: {}
+
+Next:
+{}'''.format(board, board.evaluate(), next_board)
+    return (out, 200, {'Content-type': 'text/plain'})
