@@ -33,7 +33,7 @@ class Board:
     @property
     def full(self):
         return self.num_x + self.num_o == BOARD_SIZE
-    
+
     @property
     def is_o_turn(self):
         x_ahead_one = (self.num_x == self.num_o + 1)
@@ -82,7 +82,7 @@ class Board:
             result = __check(diag)
             if result:
                 return result
-        
+
         return None
 
     @property
@@ -96,9 +96,6 @@ class Board:
         Minimax algorithm, implemented recursively, to evaluate board state and
         make a move.
         '''
-        if self.score:
-            return self.score
-
         score = None
         winner = self.winner
         if winner == Board.O:
@@ -110,7 +107,7 @@ class Board:
         else:
             minmax = max if self.is_o_turn else min
             score = minmax([c.evaluate() for c in self.children])
-            self._children.sort(key=lambda b: b.score, reverse=self.is_o_turn)
+            self._children.sort(key=lambda b: b.score, reverse=True)
 
         self.score = score
         return self.score
@@ -125,8 +122,7 @@ class Board:
                 yield Board(b)
 
     def move(self):
-        for c in self.children:
-            c.evaluate()
+        self.evaluate()
         try:
             return self.children[0]
         except IndexError:
