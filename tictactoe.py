@@ -9,7 +9,7 @@ class Board:
     X = 'x'
     O = 'o'
 
-    def __init__(self, string):
+    def __init__(self, string='         '):
         if string is None or not isinstance(string, str):
             raise ValueError('invalid board spec')
         if len(string) != BOARD_SIZE:
