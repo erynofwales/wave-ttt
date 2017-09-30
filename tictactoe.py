@@ -17,6 +17,24 @@ class Board:
 
         # Process the board into an array.
         self.board = string.lower()
+    
+    @property
+    def is_o_turn(self):
+        num_x, num_o = self._tally_pieces()
+        empty_board = (num_x == 0 and num_o == 0)
+        full_board = (num_x + num_o == BOARD_SIZE)
+        x_ahead_one = (num_x == num_o + 1)
+        return (empty_board or x_ahead_one) and not full_board
+
+    def _tally_pieces(self):
+        num_x = 0
+        num_o = 0
+        for c in self.board:
+            if c == Board.X:
+                num_x += 1
+            elif c == Board.O:
+                num_o += 1
+        return num_x, num_o
 
     def __repr__(self):
         return "<Board:'{}'>".format(self.board)
@@ -38,6 +56,9 @@ def hello():
     try:
         board = Board(request.args.get('board', None))
     except ValueError:
-        abort(400)
+        return ("Invalid board.", 400, {'Content-type': 'text/plain'})
+
+    if not board.is_o_turn:
+        return ("It isn't O's turn.\n\n{}".format(board), 400, {'Content-type': 'text/plain'})
 
     return (str(board), 200, {'Content-type': 'text/plain'})
