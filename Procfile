@@ -1,1 +1,1 @@
-web: python3 -m flask run
+web: gunicorn tictactoe:app --log-file -
