@@ -18,7 +18,10 @@ class Board:
         # Process the board into an array.
         self.board = string.lower()
 
-    def format(self):
+    def __repr__(self):
+        return "<Board:'{}'>".format(self.board)
+
+    def __str__(self):
         out = ''
         board_len = len(self.board)
         for x in range(board_len):
@@ -37,4 +40,4 @@ def hello():
     except ValueError:
         abort(400)
 
-    return (board.format(), 200, {'Content-type': 'text/plain'})
+    return (str(board), 200, {'Content-type': 'text/plain'})
