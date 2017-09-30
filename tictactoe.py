@@ -1,3 +1,4 @@
+import os
 from flask import Flask, abort, request
 
 BOARD_SIZE = 9
@@ -171,10 +172,11 @@ def hello():
         return ("It isn't O's turn.\n\n{}".format(board), 400, {'Content-type': 'text/plain'})
 
     next_board = board.move()
-    out = '''{}
-
-Score: {}
-
-Next:
-{}'''.format(board, board.evaluate(), next_board)
+    out = str(next_board)
+    if bool(os.environ.get('TTT_DEBUG', False)):
+        import pprint
+        out += '\n\n---------- DEBUG ----------'
+        out += '\n\nInput:\n{}'.format(board)
+        out += '\n\nScore: {}'.format(board.score)
+        out += '\n\nChildren:\n{}'.format(pprint.pformat(board.children))
     return (out, 200, {'Content-type': 'text/plain'})
